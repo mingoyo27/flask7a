@@ -23,12 +23,14 @@ def alumnosGuardar():
 
 @app.route("/evento")
 def evento():
-    pusher_client = pusher.Pusher(
-        app_id="1714541",
-        key="cda1cc599395d699a2af",
-        secret="9e9c00fc36600060d9e2",
-        cluster="us2",
-        ssl=True
-    )
-    
-    pusher_client.trigger("conexion", "evento", {"message": "hello world"})
+   import pusher
+
+pusher_client = pusher.Pusher(
+  app_id='1864234',
+  key='97e3a65a4669fc2eb4bd',
+  secret='6cd2985bbce79a4bf274',
+  cluster='us2',
+  ssl=True
+)
+
+pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
