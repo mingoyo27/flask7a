@@ -15,7 +15,7 @@ def index():
 def alumnos():
     return render_template("alumnos.html")
 
-@app.route("/alumnos/guardar", methods=["POST"])
+@app.route("/alumnos/guardar", methods=["GEt"])
 def alumnosGuardar():
     matricula      = request.form["txtMatriculaFA"]
     nombreapellido = request.form["txtNombreApellidoFA"]
@@ -33,4 +33,4 @@ pusher_client = pusher.Pusher(
   ssl=True
 )
 
-pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
+pusher_client.trigger("conexion", "evento", request.args)
