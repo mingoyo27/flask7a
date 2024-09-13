@@ -31,16 +31,21 @@
     <script>
         // Enable pusher logging - don't include this in production
         Pusher.logToConsole = true
-    
+        
         var pusher = new Pusher("97e3a65a4669fc2eb4bd", {
-          cluster: "us2"
-        });
-
+            cluster: "us2"
+        })
+        
         // Canal -> Conexion
         var channel = pusher.subscribe("conexion");
         // Evento: Acción de la aplicación
-        channel.bind("evento", function(data) {
-          alert("Ya ocurrió el evento en la aplicación")
+        channel.bind("evento", function (mensaje) {
+            // alert("Ya ocurrió el evento en la aplicación")
+            $("#tbodyLog").append(`<tr>
+                <td>${mensaje["txtTemperatura"]}</td>
+                <td>${mensaje["txtHumedad"]}</td>
+                <td>${mensaje["dpFechaHora"]}</td>
+            </tr>`)
         })
     </script>
 </body>
