@@ -37,9 +37,17 @@ def alumnosGuardar():
 
 @app.route("/buscar")
 def buscar():
-  return "Hola";
+    if not con.is_connected():
+        con.reconnect()
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM sensor_log ORDER BY Id_Log DESC")
+    registros = cursor.fetchall()
 
-@app.route("/evento", methods=["GET"])
+    con.close()
+
+    return registros
+
+@app.route("/registrar", methods=["GET"])
 def evento():
     if not con.is_connected():
         con.reconnect()
