@@ -55,9 +55,10 @@ def registrar():
         con.reconnect()
     cursor = con.cursor()
     
-    sql = "INSERT INTO sensor_log (Temperatura, Humedad, Fecha_Hora) VALUES (%s, %s, %s)"
-    val = (args["temperatura"], args["humedad"], datetime.datetime.now(pytz.timezone("America/Matamoros")))
-    cursor.execute(sql, val)
+   sql = "INSERT INTO tst0_contacto (Correo_Electronico, Nombre, Asunto) VALUES (%s, %s, %s)"
+   val = (args["correo_electronico"], args["nombre"], args["asunto"])
+   cursor.execute(sql, val)
+
 
     con.commit()
     con.close()
