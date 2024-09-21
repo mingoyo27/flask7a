@@ -5,121 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
-    <title>App</title>
-
-    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <title>Formulario de Contacto</title>
 </head>
 <body>
-    <div class="container">
+    <div class="container mt-5">
         <h2>Formulario de Contacto</h2>
-        <form id="contactoForm" novalidate>
-            <div class="form-group">
-                <label for="email">Correo Electrónico</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+
+        <form id="contactForm">
+            <div class="mb-3">
+                <label for="correo_electronico" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="correo_electronico" name="correo_electronico" required minlength="5" maxlength="50">
             </div>
-            <div class="form-group">
-                <label for="nombre">Nombre</label>
-                <input type="text" class="form-control" id="nombre" name="nombre" required>
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" required minlength="10" maxlength="50">
             </div>
-            <div class="form-group">
-                <label for="asunto">Asunto</label>
-                <input type="text" class="form-control" id="asunto" name="asunto" required>
+
+            <div class="mb-3">
+                <label for="asunto" class="form-label">Asunto</label>
+                <input type="text" class="form-control" id="asunto" name="asunto" required minlength="10" maxlength="50">
             </div>
-            <button type="submit" class="btn btn-primary">Contactar</button>
+
+            <button type="submit" class="btn btn-primary">Enviar</button>
         </form>
 
-        <h2 class="mt-5">Registros en Tiempo Real</h2>
-        <table class="table table-sm mt-3">
-            <thead>
-                <tr>
-                    <th>Temperatura</th>
-                    <th>Humedad</th>
-                    <th>Fecha y Hora</th>
-                </tr>
-            </thead>
-            <tbody id="tbodyLog"></tbody>
-        </table>
+        <div id="resultado" class="mt-3"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <script>
-        function buscar() {
-            $.get("/buscar", function (respuesta) {
-                $("#tbodyLog").html("")
+        $(document).ready(function() {
+            $("#contactForm").on("submit", function(e) {
+                e.preventDefault();
 
-                for (var x in respuesta) {
-                    var registro = respuesta[x]
+                const datosFormulario = {
+                    correo_electronico: $("#correo_electronico").val(),
+                    nombre: $("#nombre").val(),
+                    asunto: $("#asunto").val()
+                };
 
-                    $("#tbodyLog").append(`<tr>
-                        <td>${registro[1]}</td>
-                        <td>${registro[2]}</td>
-                        <td>${registro[3]}</td>
-                    </tr>`)
-                }
-            })
-        }
-
-        buscar()
-
-        var pusher = new Pusher("97e3a65a4669fc2eb4bd", {
-            cluster: "us2"
-        })
-
-        var channel = pusher.subscribe("registrosTiempoReal")
-        channel.bind("registroTiempoReal", function (mensaje) {
-            buscar()
-        })
-
-        $(document).ready(function () {
-            $("#contactoForm").validate({
-                rules: {
-                    email: {
-                        required: true,
-                        email: true,
-                        minlength: 5,
-                        maxlength: 50
-                    },
-                    nombre: {
-                        required: true,
-                        minlength: 10,
-                        maxlength: 50,
-                        lettersonly: true
-                    },
-                    asunto: {
-                        required: true,
-                        minlength: 10,
-                        maxlength: 50
+                $.get("/registrar", datosFormulario, function(response) {
+                    if (response.status) {
+                        $("#resultado").html("<div class='alert alert-success'>Registro exitoso</div>");
+                    } else {
+                        $("#resultado").html("<div class='alert alert-danger'>Error en el registro</div>");
                     }
-                },
-                messages: {
-                    email: {
-                        required: "Por favor, ingresa tu correo electrónico",
-                        email: "Por favor, ingresa un correo electrónico válido",
-                        minlength: "El correo debe tener al menos 5 caracteres",
-                        maxlength: "El correo no puede tener más de 50 caracteres"
-                    },
-                    nombre: {
-                        required: "Por favor, ingresa tu nombre",
-                        minlength: "El nombre debe tener al menos 10 caracteres",
-                        maxlength: "El nombre no puede tener más de 50 caracteres",
-                        lettersonly: "El nombre solo puede contener letras"
-                    },
-                    asunto: {
-                        required: "Por favor, ingresa el asunto",
-                        minlength: "El asunto debe tener al menos 10 caracteres",
-                        maxlength: "El asunto no puede tener más de 50 caracteres"
-                    }
-                }
-            })
-
-            // Validación personalizada: solo letras
-            $.validator.addMethod("lettersonly", function(value, element) {
-                return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
-            }, "Por favor, ingresa solo letras.");
+                }).fail(function() {
+                    $("#resultado").html("<div class='alert alert-danger'>Error en la conexión</div>");
+                });
+            });
         });
     </script>
 </body>
