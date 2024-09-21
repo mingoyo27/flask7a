@@ -42,38 +42,37 @@ def alumnosGuardar():
 
 @app.route("/registrar", methods=["GET"])
 def registrar():
+    # Parámetros de la solicitud GET
     args = request.args
-    pusher_client = pusher.Pusher(
-    app_id='1864234',
-    key='97e3a65a4669fc2eb4bd',
-    secret='6cd2985bbce79a4bf274',
-    cluster='us2',
-    ssl=True
-    )
+    correo_electronico = args.get("correo_electronico")
+    nombre = args.get("nombre")
+    asunto = args.get("asunto")
 
-    if not con.is_connected():
-        con.reconnect()
-    cursor = con.cursor()
-    
-   sql = "INSERT INTO tst0_contacto (Correo_Electronico, Nombre, Asunto) VALUES (%s, %s, %s)"
-   val = (args["correo_electronico"], args["nombre"], args["asunto"])
-   cursor.execute(sql, val)
+    try:
+        # Conexión a la base de datos
+        con = obtener_conexion()
+        cursor = con.cursor()
 
+        # Consulta SQL para insertar el registro, sin incluir `Id_Contacto`
+        sql = "INSERT INTO tst0_contacto (Correo_Electronico, Nombre, Asunto) VALUES (%s, %s, %s)"
+        val = (correo_electronico, nombre, asunto)
+        cursor.execute(sql, val)
+        con.commit()
 
-    con.commit()
-    con.close()
- 
-    pusher_client.trigger("registrosTiempoReal", "registroTiempoReal", args)
-    return args
+        # Enviar notificación con Pusher
+        pusher_client.trigger("registrosTiempoReal", "registroTiempoReal", {
+            "correo_electronico": correo_electronico,
+            "nombre": nombre,
+            "asunto": asunto
+        })
 
-@app.route("/buscar")
-def buscar():
-    if not con.is_connected():
-        con.reconnect()
-    cursor = con.cursor()
-    cursor.execute("SELECT * FROM sensor_log ORDER BY Id_Log DESC")
-    registros = cursor.fetchall()
+        return jsonify({"status": "Registro exitoso"}), 200
 
-    con.close()
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+
+    finally:
+        if con.is_connected():
+            con.close()
 
     return registros
