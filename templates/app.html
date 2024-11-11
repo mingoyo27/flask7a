@@ -35,6 +35,7 @@
                     <th>Correo Electrónico</th>
                     <th>Nombre</th>
                     <th>Asunto</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody id="contactosTable">
@@ -43,42 +44,53 @@
         </table>
     </div>
 
+    <!-- Modal para editar contacto -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Editar Contacto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="edit_id">
+                        <div class="mb-3">
+                            <label for="edit_correo_electronico" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="edit_correo_electronico" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="edit_nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_asunto" class="form-label">Asunto</label>
+                            <input type="text" class="form-control" id="edit_asunto" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <script>
         $(document).ready(function() {
-            // Función para enviar el formulario
-            $("#contactForm").on("submit", function(e) {
-                e.preventDefault();
-
-                const datosFormulario = {
-                    correo_electronico: $("#correo_electronico").val(),
-                    nombre: $("#nombre").val(),
-                    asunto: $("#asunto").val()
-                };
-
-                $.get("/registrar", datosFormulario, function(response) {
-                    if (response.status) {
-                        $("#resultado").html("<div class='alert alert-success'>Registro exitoso</div>");
-                        cargarContactos();  // Recargar la lista de contactos
-                    } else {
-                        $("#resultado").html("<div class='alert alert-danger'>Error en el registro</div>");
-                    }
-                }).fail(function() {
-                    $("#resultado").html("<div class='alert alert-danger'>Error en la conexión</div>");
-                });
-            });
-
-            // Función para cargar los contactos
             function cargarContactos() {
                 $.get("/listar_contactos", function(data) {
                     let rows = '';
                     data.forEach(contacto => {
                         rows += `<tr>
-                            <td>${contacto.Id_Contacto}</td>
+                            <td>${contacto.id}</td>
                             <td>${contacto.Correo_Electronico}</td>
                             <td>${contacto.Nombre}</td>
                             <td>${contacto.Asunto}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editarContacto(${contacto.id}, '${contacto.Correo_Electronico}', '${contacto.Nombre}', '${contacto.Asunto}')">Editar</button>
+                                <button class="btn btn-danger btn-sm" onclick="eliminarContacto(${contacto.id})">Eliminar</button>
+                            </td>
                         </tr>`;
                     });
                     $("#contactosTable").html(rows);
@@ -87,9 +99,74 @@
                 });
             }
 
-            // Cargar los contactos al cargar la página
+            $("#contactForm").on("submit", function(e) {
+                e.preventDefault();
+                const datosFormulario = {
+                    correo_electronico: $("#correo_electronico").val(),
+                    nombre: $("#nombre").val(),
+                    asunto: $("#asunto").val()
+                };
+                $.get("/registrar", datosFormulario, function(response) {
+                    if (response.status) {
+                        $("#resultado").html("<div class='alert alert-success'>Registro exitoso</div>");
+                        cargarContactos();
+                    } else {
+                        $("#resultado").html("<div class='alert alert-danger'>Error en el registro</div>");
+                    }
+                }).fail(function() {
+                    $("#resultado").html("<div class='alert alert-danger'>Error en la conexión</div>");
+                });
+            });
+
+            $("#editForm").on("submit", function(e) {
+                e.preventDefault();
+                const datosFormulario = {
+                    id: $("#edit_id").val(),
+                    correo_electronico: $("#edit_correo_electronico").val(),
+                    nombre: $("#edit_nombre").val(),
+                    asunto: $("#edit_asunto").val()
+                };
+                $.post("/editar", datosFormulario, function(response) {
+                    if (response.status) {
+                        $('#editModal').modal('hide');
+                        cargarContactos();
+                    } else {
+                        alert("Error al editar el contacto");
+                    }
+                }).fail(function() {
+                    alert("Error en la conexión");
+                });
+            });
+
             cargarContactos();
         });
+
+        function editarContacto(id, correo_electronico, nombre, asunto) {
+            $("#edit_id").val(id);
+            $("#edit_correo_electronico").val(correo_electronico);
+            $("#edit_nombre").val(nombre);
+            $("#edit_asunto").val(asunto);
+            $('#editModal').modal('show');
+        }
+
+        function eliminarContacto(id) {
+            if (confirm("¿Estás seguro de que deseas eliminar este contacto?")) {
+                $.ajax({
+                    url: "/eliminar/" + id,
+                    type: "DELETE",
+                    success: function(response) {
+                        if (response.status) {
+                            cargarContactos();
+                        } else {
+                            alert("Error al eliminar el contacto");
+                        }
+                    },
+                    error: function() {
+                        alert("Error en la conexión");
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html>
