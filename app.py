@@ -1,6 +1,4 @@
-from flask import Flask, jsonify
-from flask import render_template
-from flask import request
+from flask import Flask, jsonify, render_template, request
 import pusher
 import mysql.connector
 
@@ -15,15 +13,10 @@ def obtener_conexion():
         password="dJ0CIAFF="
     )
 
-# Ruta para la página principal con el formulario de contacto
+# Ruta para la página principal con el formulario y la tabla
 @app.route("/")
 def index():
     return render_template("app.html")
-
-# Ruta para visualizar los contactos
-@app.route("/visualizar_contactos")
-def visualizar_contactos():
-    return render_template("visualizar_contactos.html")
 
 # Ruta para listar los contactos registrados
 @app.route("/listar_contactos", methods=["GET"])
@@ -38,8 +31,6 @@ def listar_contactos():
         contactos = cursor.fetchall()
 
         con.close()
-
-        # Devolver los datos en formato JSON
         return jsonify(contactos), 200
 
     except mysql.connector.Error as err:
@@ -48,24 +39,19 @@ def listar_contactos():
 # Ruta para registrar un nuevo contacto desde el formulario
 @app.route("/registrar", methods=["GET"])
 def registrar():
-    # Parámetros de la solicitud GET
     args = request.args
     correo_electronico = args.get("correo_electronico")
     nombre = args.get("nombre")
     asunto = args.get("asunto")
 
     try:
-        # Conexión a la base de datos
         con = obtener_conexion()
         cursor = con.cursor()
-
-        # Consulta SQL para insertar el registro
         sql = "INSERT INTO tst0_contacto (Correo_Electronico, Nombre, Asunto) VALUES (%s, %s, %s)"
         val = (correo_electronico, nombre, asunto)
         cursor.execute(sql, val)
         con.commit()
 
-        # Enviar notificación con Pusher
         pusher_client = pusher.Pusher(
             app_id='1864234',
             key='97e3a65a4669fc2eb4bd',
@@ -73,7 +59,6 @@ def registrar():
             cluster='us2',
             ssl=True
         )
-
         pusher_client.trigger("registrosTiempoReal", "registroTiempoReal", {
             "correo_electronico": correo_electronico,
             "nombre": nombre,
