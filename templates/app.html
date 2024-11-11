@@ -78,24 +78,24 @@
 
     <script>
         $(document).ready(function() {
-            function cargarContactos() {
-                $.get("/listar_contactos", function(data) {
-                    let rows = '';
-                    data.forEach(contacto => {
-                        rows += `<tr>
-                            <td>${contacto.Id_Contacto}</td>
-                            <td>${contacto.Correo_Electronico}</td>
-                            <td>${contacto.Nombre}</td>
-                            <td>${contacto.Asunto}</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editarContacto(${contacto.Id_Contacto}, '${contacto.Correo_Electronico}', '${contacto.Nombre}', '${contacto.Asunto}')">Editar</button>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarContacto(${contacto.Id_Contacto})">Eliminar</button>
-                            </td>
-                        </tr>`;
-                    });
-                    $("#contactosTable").html(rows);
-                }).fail(function() {
-                    alert("Error al cargar los datos");
+             function cargarContactos() {
+        $.get("/listar_contactos", function(data) {
+            let rows = '';
+            data.forEach(contacto => {
+                rows += `<tr>
+                    <td>${contacto.Id_Contacto}</td>
+                    <td>${contacto.Correo_Electronico}</td>
+                    <td>${contacto.Nombre}</td>
+                    <td>${contacto.Asunto}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editarContacto(${contacto.Id_Contacto}, '${contacto.Correo_Electronico}', '${contacto.Nombre}', '${contacto.Asunto}')">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="eliminarContacto(${contacto.Id_Contacto})">Eliminar</button>
+                    </td>
+                </tr>`;
+            });
+            $("#contactosTable").html(rows);
+        }).fail(function() {
+            alert("Error al cargar los datos");
                 });
             }
 
@@ -141,18 +141,18 @@
             cargarContactos();
         });
 
-        function editarContacto(Id_Contacto, correo_electronico, nombre, asunto) {
-            $("#edit_id").val(Id_Contacto);
+        function editarContacto(id, correo_electronico, nombre, asunto) {
+            $("#edit_id").val(id);
             $("#edit_correo_electronico").val(correo_electronico);
             $("#edit_nombre").val(nombre);
             $("#edit_asunto").val(asunto);
             $('#editModal').modal('show');
         }
 
-        function eliminarContacto(Id_Contacto) {
+        function eliminarContacto(id) {
             if (confirm("¿Estás seguro de que deseas eliminar este contacto?")) {
                 $.ajax({
-                    url: "/eliminar/" + Id_Contacto,
+                    url: "/eliminar/" + id,
                     type: "DELETE",
                     success: function(response) {
                         if (response.status) {
