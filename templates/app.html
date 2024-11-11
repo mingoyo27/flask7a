@@ -3,44 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-
     <title>Contacto</title>
 </head>
 <body>
     <div class="container mt-5">
         <h2>Formulario de Contacto</h2>
-
         <form id="contactForm">
             <div class="mb-3">
                 <label for="correo_electronico" class="form-label">Correo Electrónico</label>
                 <input type="email" class="form-control" id="correo_electronico" name="correo_electronico" required minlength="5" maxlength="50">
             </div>
-
             <div class="mb-3">
                 <label for="nombre" class="form-label">Nombre</label>
                 <input type="text" class="form-control" id="nombre" name="nombre" required minlength="10" maxlength="50">
             </div>
-
             <div class="mb-3">
                 <label for="asunto" class="form-label">Asunto</label>
                 <input type="text" class="form-control" id="asunto" name="asunto" required minlength="10" maxlength="50">
             </div>
-
             <button type="submit" class="btn btn-primary">Contactar</button>
         </form>
-            <button href='visualizar_contactos.html' class="btn btn-primary">Datos</button>
-        
         <div id="resultado" class="mt-3"></div>
+
+        <h3 class="mt-5">Contactos Registrados</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Correo Electrónico</th>
+                    <th>Nombre</th>
+                    <th>Asunto</th>
+                </tr>
+            </thead>
+            <tbody id="contactosTable">
+                <!-- Los datos se cargarán aquí dinámicamente -->
+            </tbody>
+        </table>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <script>
         $(document).ready(function() {
+            // Función para enviar el formulario
             $("#contactForm").on("submit", function(e) {
                 e.preventDefault();
 
@@ -53,6 +60,7 @@
                 $.get("/registrar", datosFormulario, function(response) {
                     if (response.status) {
                         $("#resultado").html("<div class='alert alert-success'>Registro exitoso</div>");
+                        cargarContactos();  // Recargar la lista de contactos
                     } else {
                         $("#resultado").html("<div class='alert alert-danger'>Error en el registro</div>");
                     }
@@ -60,6 +68,27 @@
                     $("#resultado").html("<div class='alert alert-danger'>Error en la conexión</div>");
                 });
             });
+
+            // Función para cargar los contactos
+            function cargarContactos() {
+                $.get("/listar_contactos", function(data) {
+                    let rows = '';
+                    data.forEach(contacto => {
+                        rows += `<tr>
+                            <td>${contacto.id}</td>
+                            <td>${contacto.Correo_Electronico}</td>
+                            <td>${contacto.Nombre}</td>
+                            <td>${contacto.Asunto}</td>
+                        </tr>`;
+                    });
+                    $("#contactosTable").html(rows);
+                }).fail(function() {
+                    alert("Error al cargar los datos");
+                });
+            }
+
+            // Cargar los contactos al cargar la página
+            cargarContactos();
         });
     </script>
 </body>
