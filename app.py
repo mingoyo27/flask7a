@@ -15,15 +15,15 @@ def obtener_conexion():
 @app.route("/editar", methods=["POST"])
 def editar_contacto():
     data = request.form
-    id = data.get("id")
+    Id_Contacto = data.get("id")
     correo_electronico = data.get("correo_electronico")
     nombre = data.get("nombre")
     asunto = data.get("asunto")
     try:
         con = obtener_conexion()
         cursor = con.cursor()
-        sql = "UPDATE tst0_contacto SET Correo_Electronico = %s, Nombre = %s, Asunto = %s WHERE id = %s"
-        cursor.execute(sql, (correo_electronico, nombre, asunto, id))
+        sql = "UPDATE tst0_contacto SET Correo_Electronico = %s, Nombre = %s, Asunto = %s WHERE Id_Contacto = %s"
+        cursor.execute(sql, (correo_electronico, nombre, asunto, Id_Contacto))
         con.commit()
         return jsonify({"status": True})
     except mysql.connector.Error as err:
@@ -33,13 +33,13 @@ def editar_contacto():
         cursor.close()
         con.close()
 
-@app.route("/eliminar/<int:id>", methods=["DELETE"])
-def eliminar_contacto(id):
+@app.route("/eliminar/<int:Id_Contacto>", methods=["DELETE"])
+def eliminar_contacto(Id_Contacto):
     try:
         con = obtener_conexion()
         cursor = con.cursor()
-        sql = "DELETE FROM tst0_contacto WHERE id = %s"
-        cursor.execute(sql, (id,))
+        sql = "DELETE FROM tst0_contacto WHERE Id_Contacto = %s"
+        cursor.execute(sql, (Id_Contacto,))
         con.commit()
         return jsonify({"status": True})
     except mysql.connector.Error as err:
