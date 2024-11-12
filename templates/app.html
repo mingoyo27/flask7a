@@ -27,7 +27,9 @@
         </form>
 
         <h3 class="mt-5">Lista de Contactos</h3>
-        <table class="table table-bordered mt-3">
+        <input type="text" id="campoBusqueda" class="form-control mb-3" placeholder="Buscar contacto">
+        <button id="btnBuscar" class="btn btn-secondary mb-3">Buscar</button>
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -42,8 +44,9 @@
     </div>
 
     <script>
-        function cargarContactos() {
-            $.get("/listar_contactos", function(data) {
+        function cargarContactos(query="") {
+            let url = query ? `/buscar_contactos?query=${query}` : "/listar_contactos";
+            $.get(url, function(data) {
                 let rows = '';
                 data.forEach(contacto => {
                     rows += `<tr>
@@ -107,17 +110,4 @@
                 const datosFormulario = {
                     correo_electronico: $("#correo_electronico").val(),
                     nombre: $("#nombre").val(),
-                    asunto: $("#asunto").val()
-                };
-
-                $.get("/registrar", datosFormulario, function(response) {
-                    alert(response.status);
-                    cargarContactos();
-                }).fail(function() {
-                    alert("Error en el registro");
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+                    asunto[_{{{CITATION{{{_1{](https://github.com/la9una/web/tree/ba1073ae044ebb7b538a3b13f0f9598f7c410bb6/docs%2Fbootstrap%2Falignci.md)[_{{{CITATION{{{_2{](https://github.com/BrianToro/kuepa_prueba/tree/2031565c39993514a42268f54e9d1f67374b4436/src%2Fserver%2Fserver.js)[_{{{CITATION{{{_3{](https://github.com/cesarfenix/PasajesPhp/tree/dda4f372c5182e6062c85be491b23f7aa911276e/ejercicio3%2Fview%2Fvindex.php)[_{{{CITATION{{{_4{](https://github.com/krishnadheerajp/krishnadheerajp.github.io/tree/0e41803e74609647f6b1c76c9c162c40777b523e/GRIP%20%20Internship%2Ftransfer.php)[_{{{CITATION{{{_5{](https://github.com/erickvalles/2020b_mod3_p1/tree/4e3f6bfa1b1fd14eb49475756691ba9c5b24f4af/formularios%2Findex.php)[_{{{CITATION{{{_6{](https://github.com/deyseb/HolaMundoPQRS/tree/53df306d1fcc046d201a927356a63debc1d9e6b2/registrarUsuario.php)[_{{{CITATION{{{_7{](https://github.com/CamiloYaya-dev/camiloYayaCodeigniter/tree/5bc6cd2fff9a2b24e56dda9cf4b15174f708a265/application%2Fviews%2Fempleado.php)[_{{{CITATION{{{_8{](https://github.com/CodigosdeProgramacion/contacto-html-php/tree/a6ac024c0f601157a06cc2ed3f4f7a5bfdf66557/contacto.php)
