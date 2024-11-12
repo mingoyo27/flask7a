@@ -115,5 +115,22 @@ def eliminar_contacto(Id_Contacto):
         if con.is_connected():
             con.close()
 
+# Nueva ruta para buscar contactos
+@app.route("/buscar_contactos", methods=["GET"])
+def buscar_contactos():
+    query = request.args.get("query")
+    try:
+        con = obtener_conexion()
+        cursor = con.cursor(dictionary=True)
+        sql = "SELECT * FROM tst0_contacto WHERE Nombre LIKE %s OR Correo_Electronico LIKE %s"
+        cursor.execute(sql, ('%' + query + '%', '%' + query + '%'))
+        contactos = cursor.fetchall()
+
+        con.close()
+        return jsonify(contactos), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+
 if __name__ == "__main__":
     app.run(debug=True)
